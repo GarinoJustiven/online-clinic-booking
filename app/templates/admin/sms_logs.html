@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Semaphore SMS Logs - CareSync PH{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div>
+      <a href="/admin/dashboard" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-600 transition mb-2">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Admin Dashboard
+      </a>
+      <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Semaphore SMS Dispatch Trail</h1>
+      <p class="text-xs text-slate-500 mt-1">Audit log of mobile notifications sent to patients and physicians.</p>
+    </div>
+
+    <a href="/admin/api-status" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition">
+      <i data-lucide="send" class="w-4 h-4"></i> Send Test SMS
+    </a>
+  </div>
+
+  <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-600">
+        <thead class="bg-slate-50 uppercase font-bold text-slate-400 border-b border-slate-100">
+          <tr>
+            <th class="px-6 py-4">ID</th>
+            <th class="px-6 py-4">Recipient Phone & Name</th>
+            <th class="px-6 py-4">Message Content</th>
+            <th class="px-6 py-4">Provider Mode</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4">Sent At</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 font-medium">
+          {% for log in logs %}
+            <tr class="hover:bg-slate-50/70 transition">
+              <td class="px-6 py-4 font-mono font-bold text-slate-400">#{{ log.id }}</td>
+              <td class="px-6 py-4">
+                <div class="font-bold text-slate-900">{{ log.recipient_phone }}</div>
+                <div class="text-[10px] text-slate-400">{{ log.recipient_name or 'Patient' }}</div>
+              </td>
+              <td class="px-6 py-4 max-w-md">
+                <p class="text-slate-700 leading-relaxed">{{ log.message }}</p>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                  {{ log.provider }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                  {{ log.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-slate-400 whitespace-nowrap">
+                {{ log.sent_at.strftime('%b %d, %Y %I:%M:%S %p') }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

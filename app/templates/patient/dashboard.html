@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard - CareSync PH{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  
+  <!-- Welcome Banner -->
+  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg shadow-emerald-600/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+    <div>
+      <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white mb-2">Patient Portal</span>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Welcome back, {{ current_user.full_name }}!</h1>
+      <p class="text-emerald-100 text-sm mt-1">Manage your clinic bookings, pay consultation fees, and access prescriptions.</p>
+    </div>
+    <a href="/patient/book" class="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-emerald-800 font-bold text-sm shadow hover:bg-emerald-50 transition shrink-0">
+      <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i>
+      Book New Consultation
+    </a>
+  </div>
+
+  <!-- KPI Stats Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+        <i data-lucide="calendar" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-semibold uppercase">Total Bookings</p>
+        <p class="text-2xl font-extrabold text-slate-900">{{ total_booked }}</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+        <i data-lucide="check-circle" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-semibold uppercase">Completed Visits</p>
+        <p class="text-2xl font-extrabold text-slate-900">{{ total_completed }}</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center">
+        <i data-lucide="credit-card" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-semibold uppercase">Total Paid (PayMongo)</p>
+        <p class="text-2xl font-extrabold text-slate-900">PHP {{ "{:,.2f}".format(total_paid) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointments Table -->
+  <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Your Clinic Appointments</h2>
+        <p class="text-xs text-slate-500">Track consultation dates, statuses, and payment receipts</p>
+      </div>
+      <a href="/patient/book" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+        <i data-lucide="plus" class="w-4 h-4"></i> New Appointment
+      </a>
+    </div>
+
+    {% if appointments %}
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-xs uppercase font-bold text-slate-400 border-b border-slate-100">
+            <tr>
+              <th class="px-6 py-4">Appointment Code</th>
+              <th class="px-6 py-4">Doctor & Specialization</th>
+              <th class="px-6 py-4">Date & Time</th>
+              <th class="px-6 py-4">Fee & Payment</th>
+              <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-medium">
+            {% for appt in appointments %}
+              <tr class="hover:bg-slate-50/70 transition">
+                <td class="px-6 py-4">
+                  <span class="font-mono font-bold text-slate-900">{{ appt.appointment_code }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-bold text-slate-900">Dr. {{ appt.doctor.user.full_name }}</div>
+                  <div class="text-xs text-slate-400">{{ appt.doctor.specialization }} ({{ appt.doctor.clinic_room }})</div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="text-slate-900 font-medium">{{ appt.appointment_date.strftime('%B %d, %Y') }}</div>
+                  <div class="text-xs text-slate-400">{{ appt.appointment_time }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-bold text-slate-900">PHP {{ "{:,.2f}".format(appt.consultation_fee) }}</div>
+                  {% if appt.payment_status.value == 'PAID' %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                      ● PAID (PayMongo)
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                      ○ UNPAID
+                    </span>
+                  {% endif %}
+                </td>
+                <td class="px-6 py-4">
+                  {% if appt.status.value == 'CONFIRMED' %}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                      Confirmed
+                    </span>
+                  {% elif appt.status.value == 'COMPLETED' %}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                      Completed
+                    </span>
+                  {% elif appt.status.value == 'CANCELLED' %}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700">
+                      Cancelled
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                      Pending
+                    </span>
+                  {% endif %}
+                </td>
+                <td class="px-6 py-4 text-right space-x-2">
+                  <a href="/patient/appointments/{{ appt.id }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+                    View Details
+                  </a>
+                  {% if appt.payment_status.value != 'PAID' and appt.status.value != 'CANCELLED' %}
+                    <a href="/patient/paymongo-simulator?code={{ appt.appointment_code }}&amount={{ appt.consultation_fee }}"
+                       class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">
+                      Pay Now
+                    </a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-12">
+        <i data-lucide="calendar-x" class="w-12 h-12 mx-auto text-slate-300 mb-3"></i>
+        <p class="text-sm font-semibold text-slate-700">No appointments booked yet</p>
+        <p class="text-xs text-slate-400 mt-1">Book your first doctor appointment in just 2 minutes.</p>
+        <a href="/patient/book" class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition">
+          Book Consultation
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Medical Documents Preview Banner -->
+  <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+        <i data-lucide="file-text" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900">Medical Records & Cloudinary Storage</h3>
+        <p class="text-xs text-slate-500">You have {{ records|length }} medical document(s) uploaded safely to Cloudinary.</p>
+      </div>
+    </div>
+    <a href="/patient/records" class="px-4 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition shrink-0">
+      Manage Medical Documents →
+    </a>
+  </div>
+
+</div>
+{% endblock %}

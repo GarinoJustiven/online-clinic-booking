@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Appointment {{ appointment.appointment_code }} - CareSync PH{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  
+  <!-- Navigation Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div>
+      <a href="/patient/dashboard" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-emerald-600 transition mb-2">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard
+      </a>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Appointment Details</h1>
+        <span class="font-mono text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+          {{ appointment.appointment_code }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Status Badges -->
+    <div class="flex items-center gap-2">
+      {% if appointment.payment_status.value == 'PAID' %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+          ● Paid via PayMongo
+        </span>
+      {% else %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+          ○ Unpaid (Pending Payment)
+        </span>
+      {% endif %}
+
+      {% if appointment.status.value == 'CONFIRMED' %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+          Confirmed
+        </span>
+      {% elif appointment.status.value == 'COMPLETED' %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+          Completed
+        </span>
+      {% elif appointment.status.value == 'CANCELLED' %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800">
+          Cancelled
+        </span>
+      {% else %}
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+          Pending Approval
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if booked %}
+    <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+        <span>Appointment successfully created! Confirmation SMS sent via Semaphore.</span>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if paid %}
+    <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+        <span>Payment confirmed via PayMongo! Receipt SMS has been dispatched.</span>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="grid lg:grid-cols-12 gap-8">
+    
+    <!-- Left Column: Details -->
+    <div class="lg:col-span-8 space-y-6">
+      
+      <!-- Primary Appointment Card -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Doctor Information</span>
+            <div class="mt-2 flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0">
+                Dr
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Dr. {{ appointment.doctor.user.full_name }}</h3>
+                <p class="text-xs text-emerald-700 font-semibold">{{ appointment.doctor.specialization }}</p>
+                <p class="text-xs text-slate-400">{{ appointment.doctor.clinic_room }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Schedule & Fee</span>
+            <div class="mt-2 space-y-1">
+              <div class="flex items-center gap-2 text-sm font-bold text-slate-800">
+                <i data-lucide="calendar" class="w-4 h-4 text-emerald-600"></i>
+                <span>{{ appointment.appointment_date.strftime('%A, %B %d, %Y') }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <i data-lucide="clock" class="w-4 h-4 text-slate-400"></i>
+                <span>{{ appointment.appointment_time }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm font-extrabold text-emerald-700 pt-1">
+                <i data-lucide="credit-card" class="w-4 h-4 text-emerald-600"></i>
+                <span>PHP {{ "{:,.2f}".format(appointment.consultation_fee) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% if appointment.patient_notes %}
+          <div class="pt-4 border-t border-slate-100">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Patient Symptoms & Notes</span>
+            <p class="mt-1 text-xs text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-100 leading-relaxed">
+              {{ appointment.patient_notes }}
+            </p>
+          </div>
+        {% endif %}
+
+        {% if appointment.doctor_diagnosis or appointment.doctor_prescription %}
+          <div class="pt-4 border-t border-slate-100 space-y-4">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Doctor Clinical Notes & Prescription</span>
+            
+            {% if appointment.doctor_diagnosis %}
+              <div class="p-4 rounded-xl bg-teal-50/70 border border-teal-100">
+                <span class="text-xs font-bold text-teal-900 block mb-1">Clinical Diagnosis:</span>
+                <p class="text-xs text-teal-800 leading-relaxed">{{ appointment.doctor_diagnosis }}</p>
+              </div>
+            {% endif %}
+
+            {% if appointment.doctor_prescription %}
+              <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-100">
+                <span class="text-xs font-bold text-blue-900 block mb-1">Prescription & Advice:</span>
+                <p class="text-xs text-blue-800 font-mono leading-relaxed whitespace-pre-line">{{ appointment.doctor_prescription }}</p>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Semaphore SMS Logs for this appointment -->
+      <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-green-100 text-green-700 flex items-center justify-center">
+              <i data-lucide="message-square" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Semaphore SMS Audit Trail</h3>
+              <p class="text-[10px] text-slate-500">Live SMS notifications dispatched for this appointment</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-green-50 text-green-700 border border-green-200">
+            SMS API Active
+          </span>
+        </div>
+
+        {% if sms_logs %}
+          <div class="space-y-2.5">
+            {% for log in sms_logs %}
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                <div class="space-y-1">
+                  <p class="text-slate-700 font-medium">{{ log.message }}</p>
+                  <p class="text-[10px] text-slate-400">To: {{ log.recipient_phone }} • {{ log.sent_at.strftime('%b %d, %Y %I:%M %p') }}</p>
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 shrink-0">
+                  {{ log.status }}
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-xs text-slate-400 italic">No SMS logs recorded yet for this appointment code.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Right Column: API Action Cards -->
+    <div class="lg:col-span-4 space-y-6">
+      
+      <!-- API 1: PayMongo Payment Box -->
+      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+            <i data-lucide="credit-card" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">PayMongo Gateway</h3>
+            <p class="text-[10px] text-slate-500">GCash, Maya, GrabPay, Card</p>
+          </div>
+        </div>
+
+        {% if appointment.payment_status.value == 'PAID' %}
+          <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-center space-y-2">
+            <i data-lucide="check-circle" class="w-8 h-8 text-emerald-600 mx-auto"></i>
+            <p class="text-xs font-bold text-emerald-900">Payment Completed</p>
+            <p class="text-[11px] text-emerald-700">Amount Paid: PHP {{ "{:,.2f}".format(appointment.consultation_fee) }}</p>
+            {% if appointment.payment and appointment.payment.paymongo_payment_id %}
+              <p class="font-mono text-[10px] text-emerald-600">Ref: {{ appointment.payment.paymongo_payment_id }}</p>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="space-y-3">
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-500">Total Consultation:</span>
+              <span class="font-bold text-slate-900">PHP {{ "{:,.2f}".format(appointment.consultation_fee) }}</span>
+            </div>
+            
+            <a href="/patient/paymongo-simulator?code={{ appointment.appointment_code }}&amount={{ appointment.consultation_fee }}"
+               class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition">
+              <i data-lucide="wallet" class="w-4 h-4"></i> Pay with PayMongo / GCash
+            </a>
+            <p class="text-[10px] text-slate-400 text-center">Interactive Sandbox Checkout with GCash, Maya, and Test Cards</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- API 3: Google Calendar Box -->
+      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Google Calendar</h3>
+            <p class="text-[10px] text-slate-500">Sync with Doctor & Room Details</p>
+          </div>
+        </div>
+
+        {% if appointment.google_calendar_link %}
+          <a href="{{ appointment.google_calendar_link }}" target="_blank"
+             class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 shadow-sm transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+            </svg>
+            Add to Google Calendar
+          </a>
+        {% endif %}
+        <p class="text-[10px] text-slate-400 text-center">Direct deep link adds event with doctor, time, and room address</p>
+      </div>
+
+      <!-- Cancel Action -->
+      {% if appointment.status.value != 'CANCELLED' and appointment.status.value != 'COMPLETED' %}
+        <form action="/patient/appointments/{{ appointment.id }}/cancel" method="POST" onsubmit="return confirm('Are you sure you want to cancel this appointment?')">
+          <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-200 transition">
+            Cancel Appointment
+          </button>
+        </form>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

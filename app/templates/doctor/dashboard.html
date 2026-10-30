@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Dashboard - CareSync PH{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  
+  <!-- Top Welcome Banner -->
+  <div class="bg-gradient-to-r from-teal-700 to-emerald-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg shadow-teal-700/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+    <div>
+      <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white mb-2">Physician Portal</span>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Dr. {{ profile.user.full_name }}</h1>
+      <p class="text-teal-100 text-sm mt-1">{{ profile.specialization }} • {{ profile.clinic_room }} • {{ profile.schedule_hours }}</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/doctor/profile" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition">
+        Edit Schedule & Room
+      </a>
+      <a href="/doctor/appointments" class="px-4 py-2.5 rounded-xl bg-white text-teal-800 font-bold text-xs shadow hover:bg-teal-50 transition">
+        All Consultations
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI Metrics -->
+  <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center">
+        <i data-lucide="calendar" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-semibold uppercase">Today's Visits</p>
+        <p class="text-2xl font-extrabold text-slate-900">{{ today_appointments|length }}</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+        <i data-lucide="clock" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-semibold uppercase">Pending Approvals</p>
+        <p class="text-2xl font-extrabold text-slate-900">{{ pending_count }}</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-semibold uppercase">Completed Consults</p>
+        <p class="text-2xl font-extrabold text-slate-900">{{ completed_count }}</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+        <i data-lucide="wallet" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-semibold uppercase">Consultation Fees</p>
+        <p class="text-2xl font-extrabold text-slate-900">PHP {{ "{:,.2f}".format(total_earnings) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Queue -->
+  <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Today's Patient Schedule</h2>
+        <p class="text-xs text-slate-500">Patients booked for today's clinic hours</p>
+      </div>
+      <span class="text-xs font-semibold px-3 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+        {{ today_appointments|length }} Patient(s) on queue
+      </span>
+    </div>
+
+    {% if today_appointments %}
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-xs uppercase font-bold text-slate-400 border-b border-slate-100">
+            <tr>
+              <th class="px-6 py-4">Time</th>
+              <th class="px-6 py-4">Patient Name</th>
+              <th class="px-6 py-4">Code</th>
+              <th class="px-6 py-4">Payment</th>
+              <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-medium">
+            {% for appt in today_appointments %}
+              <tr class="hover:bg-slate-50/70 transition">
+                <td class="px-6 py-4 font-bold text-slate-900">{{ appt.appointment_time }}</td>
+                <td class="px-6 py-4">
+                  <div class="font-bold text-slate-900">{{ appt.patient.full_name }}</div>
+                  <div class="text-xs text-slate-400">{{ appt.patient.phone_number }}</div>
+                </td>
+                <td class="px-6 py-4 font-mono text-xs">{{ appt.appointment_code }}</td>
+                <td class="px-6 py-4">
+                  {% if appt.payment_status.value == 'PAID' %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      Paid (PayMongo)
+                    </span>
+                  {% else %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                      Unpaid
+                    </span>
+                  {% endif %}
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                    {{ appt.status.value }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <a href="/doctor/appointments/{{ appt.id }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition">
+                    Attend Patient
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-12">
+        <i data-lucide="coffee" class="w-12 h-12 mx-auto text-slate-300 mb-2"></i>
+        <p class="text-sm font-semibold text-slate-700">No appointments scheduled for today</p>
+        <p class="text-xs text-slate-400 mt-1">Check your upcoming appointments tab for future consultations.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

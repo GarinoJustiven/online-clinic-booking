@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Google Sign-In Simulator - CareSync PH{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl border border-slate-100 space-y-6">
+    
+    <div class="text-center">
+      <svg class="w-10 h-10 mx-auto mb-2" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+      </svg>
+      <h2 class="text-xl font-bold text-slate-900">Choose an account</h2>
+      <p class="text-xs text-slate-500 mt-1">to continue to CareSync PH (Google OAuth 2.0 Sandbox)</p>
+    </div>
+
+    <div class="space-y-3">
+      <!-- Account 1 -->
+      <a href="/auth/google/callback?mock_email=patient.cruz@example.com&mock_name=Juan+Dela+Cruz&mock_role=PATIENT"
+         class="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 hover:bg-slate-50 transition group">
+        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0">
+          JD
+        </div>
+        <div class="flex-1 text-left min-w-0">
+          <p class="text-sm font-bold text-slate-800 group-hover:text-emerald-600 transition truncate">Juan Dela Cruz</p>
+          <p class="text-xs text-slate-500 truncate">patient.cruz@example.com</p>
+        </div>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+          Patient
+        </span>
+      </a>
+
+      <!-- Account 2 -->
+      <a href="/auth/google/callback?mock_email=doctor.santos@caresync.ph&mock_name=Dr.+Maria+Santos&mock_role=DOCTOR"
+         class="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 hover:bg-slate-50 transition group">
+        <div class="w-10 h-10 rounded-full bg-teal-100 text-teal-800 font-bold flex items-center justify-center shrink-0">
+          MS
+        </div>
+        <div class="flex-1 text-left min-w-0">
+          <p class="text-sm font-bold text-slate-800 group-hover:text-teal-600 transition truncate">Dr. Maria Santos</p>
+          <p class="text-xs text-slate-500 truncate">doctor.santos@caresync.ph</p>
+        </div>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">
+          Doctor
+        </span>
+      </a>
+
+      <!-- Account 3 -->
+      <a href="/auth/google/callback?mock_email=admin@caresync.ph&mock_name=Admin+Officer&mock_role=ADMIN"
+         class="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 hover:bg-slate-50 transition group">
+        <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-800 font-bold flex items-center justify-center shrink-0">
+          AO
+        </div>
+        <div class="flex-1 text-left min-w-0">
+          <p class="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition truncate">Admin Officer</p>
+          <p class="text-xs text-slate-500 truncate">admin@caresync.ph</p>
+        </div>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+          Admin
+        </span>
+      </a>
+    </div>
+
+    <!-- Custom Account Input -->
+    <div class="pt-4 border-t border-slate-100">
+      <p class="text-xs font-semibold text-slate-600 mb-2">Or enter any custom Google account:</p>
+      <form action="/auth/google/callback" method="GET" class="space-y-3">
+        <input type="text" name="mock_name" required placeholder="Full Name"
+               class="block w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <input type="email" name="mock_email" required placeholder="user@gmail.com"
+               class="block w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <select name="mock_role" class="block w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <option value="PATIENT">Role: Patient</option>
+          <option value="DOCTOR">Role: Doctor</option>
+          <option value="ADMIN">Role: Admin</option>
+        </select>
+        <button type="submit" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition">
+          Continue with Custom Account
+        </button>
+      </form>
+    </div>
+
+    <div class="text-center">
+      <a href="/login" class="text-xs text-slate-400 hover:text-slate-600">Cancel & Return to Login</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
