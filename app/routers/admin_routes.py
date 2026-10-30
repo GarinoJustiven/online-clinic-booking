@@ -1,3 +1,4 @@
+from pathlib import Path
 from datetime import datetime, date
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -16,7 +17,8 @@ from app.services.paymongo_service import paymongo_service
 from app.services.google_calendar_service import google_calendar_service
 
 router = APIRouter(prefix="/admin", tags=["Admin Portal"])
-templates = Jinja2Templates(directory="app/templates")
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def admin_dashboard(

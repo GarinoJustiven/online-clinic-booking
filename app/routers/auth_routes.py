@@ -1,3 +1,4 @@
+from pathlib import Path
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -13,7 +14,8 @@ from app.auth import (
 from app.services.google_oauth_service import google_oauth_service
 
 router = APIRouter(prefix="", tags=["Authentication"])
-templates = Jinja2Templates(directory="app/templates")
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, error: str = None, success: str = None, user=Depends(get_optional_current_user)):

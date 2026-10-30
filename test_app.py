@@ -37,7 +37,7 @@ class TestCareSyncSystem(unittest.TestCase):
         res = self.client.get("/")
         self.assertEqual(res.status_code, 200)
         self.assertIn("CareSync", res.text)
-        self.assertIn("PayMongo Sandbox", res.text)
+        self.assertIn("Healthcare Booking", res.text)
 
     def test_02_health_api(self):
         res = self.client.get("/api/health")

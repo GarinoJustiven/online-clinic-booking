@@ -1,3 +1,4 @@
+from pathlib import Path
 from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -13,7 +14,8 @@ from app.auth import require_roles
 from app.services.semaphore_service import semaphore_service
 
 router = APIRouter(prefix="/doctor", tags=["Doctor Portal"])
-templates = Jinja2Templates(directory="app/templates")
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def doctor_dashboard(

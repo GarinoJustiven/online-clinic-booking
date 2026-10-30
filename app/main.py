@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
@@ -15,6 +16,16 @@ from seed import seed_database
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("caresync")
+
+# Ensure static & templates directory paths are robust across cloud hostings
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
+(STATIC_DIR / "css").mkdir(parents=True, exist_ok=True)
+(STATIC_DIR / "js").mkdir(parents=True, exist_ok=True)
+(STATIC_DIR / "uploads").mkdir(parents=True, exist_ok=True)
+
+TEMPLATES_DIR = BASE_DIR / "templates"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -45,10 +56,10 @@ app.add_middleware(
 )
 
 # Static Files Mount
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # Templates
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 # Mount Routers
 app.include_router(auth_routes.router)

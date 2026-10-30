@@ -1,3 +1,4 @@
+from pathlib import Path
 import random
 import uuid
 from datetime import datetime, date
@@ -18,7 +19,8 @@ from app.services.google_calendar_service import google_calendar_service
 from app.services.cloudinary_service import cloudinary_service
 
 router = APIRouter(prefix="/patient", tags=["Patient Portal"])
-templates = Jinja2Templates(directory="app/templates")
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def patient_dashboard(
