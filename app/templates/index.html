@@ -6,93 +6,47 @@
 <!-- Hero Section -->
 <section class="relative overflow-hidden bg-gradient-to-b from-emerald-50/60 via-white to-slate-50 py-16 lg:py-24 border-b border-slate-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid lg:grid-cols-12 gap-12 items-center">
+    <div class="max-w-3xl mx-auto text-center space-y-6">
       
-      <!-- Left Content -->
-      <div class="lg:col-span-7 space-y-6">
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-          <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
-          Modern Healthcare & Outpatient Clinic Portal
-        </div>
-        
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-          Healthcare Booking, <br>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">
-            Simplified & Connected.
-          </span>
-        </h1>
-        
-        <p class="text-lg text-slate-600 max-w-2xl leading-relaxed">
-          Book appointments with certified specialists, pay securely via GCash or Maya, receive instant mobile SMS reminders, and access your clinical prescriptions from anywhere.
-        </p>
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+        <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
+        Modern Healthcare & Outpatient Clinic Portal
+      </div>
+      
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
+        Healthcare Booking, <br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">
+          Simplified & Connected.
+        </span>
+      </h1>
+      
+      <p class="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        Book appointments with certified specialists, pay securely via GCash or Maya, receive instant mobile SMS reminders, and access your clinical prescriptions from anywhere.
+      </p>
 
-        <!-- CTA Buttons -->
-        <div class="flex flex-wrap gap-4 pt-2">
-          <a href="/patient/book" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-base shadow-lg shadow-emerald-600/30 transition transform hover:-translate-y-0.5">
-            <i data-lucide="calendar-plus" class="w-5 h-5"></i>
-            Book Consultation Now
-          </a>
-          <a href="/login" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-base border border-slate-200 shadow-sm transition">
-            <i data-lucide="log-in" class="w-5 h-5 text-slate-400"></i>
-            Sign In / Register
-          </a>
-        </div>
-
-        <!-- Clinic Highlights -->
-        <div class="pt-6 border-t border-slate-200 grid grid-cols-3 gap-4 text-left">
-          <div>
-            <p class="text-2xl font-black text-slate-900">100%</p>
-            <p class="text-xs text-slate-500 font-medium">Verified Physicians</p>
-          </div>
-          <div>
-            <p class="text-2xl font-black text-slate-900">Instant</p>
-            <p class="text-xs text-slate-500 font-medium">SMS Confirmation</p>
-          </div>
-          <div>
-            <p class="text-2xl font-black text-slate-900">Flexible</p>
-            <p class="text-xs text-slate-500 font-medium">GCash & Maya</p>
-          </div>
-        </div>
+      <!-- CTA Button -->
+      <div class="flex justify-center pt-2">
+        <a href="/patient/book" class="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-lg shadow-emerald-600/30 transition transform hover:-translate-y-0.5">
+          <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+          Appoint Now
+        </a>
       </div>
 
-      <!-- Right Card: Available Specialists Showcase -->
-      <div class="lg:col-span-5">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-100 space-y-4">
-          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-              <i data-lucide="user-check" class="w-5 h-5 text-emerald-600"></i> On-Duty Specialists
-            </h3>
-            <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
-              Accepting Patients
-            </span>
-          </div>
-
-          <div class="space-y-3">
-            {% for doc in doctors[:3] %}
-              <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-emerald-50/40 transition">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0">
-                    Dr
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-bold text-slate-900">Dr. {{ doc.user.full_name }}</h4>
-                    <p class="text-xs text-emerald-700 font-semibold">{{ doc.specialization }}</p>
-                    <p class="text-[11px] text-slate-400">{{ doc.clinic_room }}</p>
-                  </div>
-                </div>
-                <a href="/patient/book?doctor_id={{ doc.id }}" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-emerald-700 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 text-xs font-bold shadow-sm transition">
-                  Book
-                </a>
-              </div>
-            {% endfor %}
-          </div>
-
-          <a href="/patient/book" class="block text-center text-xs font-bold text-emerald-600 hover:text-emerald-700 pt-2">
-            View All Physicians & Clinic Services →
-          </a>
+      <!-- Clinic Highlights -->
+      <div class="pt-8 border-t border-slate-200 grid grid-cols-3 gap-6 max-w-xl mx-auto text-center">
+        <div>
+          <p class="text-2xl font-black text-slate-900">100%</p>
+          <p class="text-xs text-slate-500 font-medium">Verified Physicians</p>
+        </div>
+        <div>
+          <p class="text-2xl font-black text-slate-900">Instant</p>
+          <p class="text-xs text-slate-500 font-medium">SMS Confirmation</p>
+        </div>
+        <div>
+          <p class="text-2xl font-black text-slate-900">Flexible</p>
+          <p class="text-xs text-slate-500 font-medium">GCash & Maya</p>
         </div>
       </div>
-
     </div>
   </div>
 </section>
