@@ -27,7 +27,7 @@
   {% if updated %}
     <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-3">
       <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 shrink-0"></i>
-      <span>Consultation record updated! An automated Semaphore SMS notice was dispatched to the patient.</span>
+      <span>Consultation record updated! An automated SMS notice was dispatched to the patient.</span>
     </div>
   {% endif %}
 
@@ -71,11 +71,11 @@
         {% endif %}
       </div>
 
-      <!-- Cloudinary Uploaded Documents -->
+      <!-- Uploaded Documents -->
       <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <i data-lucide="folder" class="w-4 h-4 text-indigo-600"></i> Attached Records (Cloudinary)
+            <i data-lucide="folder" class="w-4 h-4 text-indigo-600"></i> Attached Patient Records
           </h3>
           <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700">
             {{ patient_records|length }} Files
@@ -145,7 +145,7 @@
           </div>
           <div>
             <h2 class="text-base font-bold text-slate-900">Physician Diagnosis & Digital Prescription</h2>
-            <p class="text-xs text-slate-500">Updates will automatically notify the patient via Semaphore SMS</p>
+            <p class="text-xs text-slate-500">Updates will automatically notify the patient via SMS</p>
           </div>
         </div>
 
@@ -178,7 +178,7 @@ Follow-up in 1 week if symptoms persist."
 
           <div class="p-3.5 rounded-xl bg-teal-50 border border-teal-200 text-teal-800 text-xs flex items-center gap-2">
             <i data-lucide="message-square" class="w-4 h-4 text-teal-600 shrink-0"></i>
-            <span>Saving will instantly trigger a <strong>Semaphore SMS update</strong> to {{ appointment.patient.phone_number }}.</span>
+            <span>Saving will instantly trigger an <strong>SMS update</strong> to {{ appointment.patient.phone_number }}.</span>
           </div>
 
           <button type="submit" class="w-full py-3.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md shadow-teal-600/30 transition flex items-center justify-center gap-2">
@@ -202,7 +202,7 @@ Follow-up in 1 week if symptoms persist."
         </div>
         <div>
           <h3 id="previewTitle" class="text-sm font-bold text-slate-900 truncate max-w-md">Attached Document</h3>
-          <p class="text-[10px] text-slate-400">Cloudinary Secured Medical Record</p>
+          <p class="text-[10px] text-slate-400">Secured Medical Record</p>
         </div>
       </div>
       <div class="flex items-center gap-2">

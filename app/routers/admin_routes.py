@@ -327,48 +327,48 @@ async def admin_api_status(
 ):
     api_statuses = [
         {
-            "name": "PayMongo Payment Gateway",
+            "name": "Online Payment Gateway",
             "category": "Payments & Billing (Sandbox / Live)",
             "configured": settings.is_paymongo_configured,
             "mode": "Live Production" if settings.is_paymongo_configured else "Sandbox Simulator",
             "endpoint": settings.PAYMONGO_BASE_URL,
-            "docs": "https://developers.paymongo.com",
+            "docs": "#",
             "icon": "credit-card"
         },
         {
-            "name": "Semaphore SMS Gateway",
+            "name": "SMS Gateway",
             "category": "Mobile SMS Notifications (Philippines)",
             "configured": settings.is_semaphore_configured,
             "mode": "Live Gateway" if settings.is_semaphore_configured else "Sandbox Mock Logger",
             "endpoint": "https://api.semaphore.co/api/v4/messages",
-            "docs": "https://semaphore.co/docs",
+            "docs": "#",
             "icon": "message-square"
         },
         {
-            "name": "Google Calendar API",
+            "name": "Calendar Synchronization",
             "category": "Calendar Scheduling & Sync",
             "configured": settings.is_google_calendar_configured,
             "mode": "Live API & Universal Deep Link" if settings.is_google_calendar_configured else "Universal Deep Link Sync",
             "endpoint": "https://www.googleapis.com/calendar/v3",
-            "docs": "https://developers.google.com/calendar",
+            "docs": "#",
             "icon": "calendar"
         },
         {
-            "name": "Google OAuth 2.0",
+            "name": "Single Sign-On (SSO)",
             "category": "Authentication & Social Sign-In",
             "configured": settings.is_google_oauth_configured,
-            "mode": "Google Cloud Console Live" if settings.is_google_oauth_configured else "Interactive OAuth Mock Simulator",
+            "mode": "Live Authentication" if settings.is_google_oauth_configured else "Interactive OAuth Mock Simulator",
             "endpoint": "https://accounts.google.com/o/oauth2/v2/auth",
-            "docs": "https://developers.google.com/identity/protocols/oauth2",
+            "docs": "#",
             "icon": "lock"
         },
         {
-            "name": "Cloudinary Document Storage",
+            "name": "Cloud Document Storage",
             "category": "Medical Documents & ID Storage",
             "configured": settings.is_cloudinary_configured,
-            "mode": "Cloudinary Cloud CDN" if settings.is_cloudinary_configured else "Local Sandbox Storage (/static/uploads)",
+            "mode": "Cloud Storage CDN" if settings.is_cloudinary_configured else "Local Sandbox Storage (/static/uploads)",
             "endpoint": f"https://api.cloudinary.com/v1_1/{settings.CLOUDINARY_CLOUD_NAME or 'default'}",
-            "docs": "https://cloudinary.com/documentation",
+            "docs": "#",
             "icon": "cloud"
         }
     ]

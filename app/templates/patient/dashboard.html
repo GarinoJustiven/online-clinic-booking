@@ -45,7 +45,7 @@
         <i data-lucide="credit-card" class="w-6 h-6"></i>
       </div>
       <div>
-        <p class="text-xs text-slate-500 font-semibold uppercase">Total Paid (PayMongo)</p>
+        <p class="text-xs text-slate-500 font-semibold uppercase">Total Paid Online</p>
         <p class="text-2xl font-extrabold text-slate-900">PHP {{ "{:,.2f}".format(total_paid) }}</p>
       </div>
     </div>
@@ -94,7 +94,7 @@
                   <div class="font-bold text-slate-900">PHP {{ "{:,.2f}".format(appt.consultation_fee) }}</div>
                   {% if appt.payment_status.value == 'PAID' %}
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                      ● PAID (PayMongo)
+                      ● PAID
                     </span>
                   {% else %}
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
@@ -156,8 +156,8 @@
         <i data-lucide="file-text" class="w-6 h-6"></i>
       </div>
       <div>
-        <h3 class="font-bold text-slate-900">Medical Records & Cloudinary Storage</h3>
-        <p class="text-xs text-slate-500">You have {{ records|length }} medical document(s) uploaded safely to Cloudinary.</p>
+        <h3 class="font-bold text-slate-900">Medical Records & Cloud Storage</h3>
+        <p class="text-xs text-slate-500">You have {{ records|length }} medical document(s) uploaded safely to your portal.</p>
       </div>
     </div>
     <a href="/patient/records" class="px-4 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition shrink-0">
