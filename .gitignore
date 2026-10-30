@@ -1,0 +1,40 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+
+# Uploads directory (keep directory, ignore uploaded files)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Operating system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# IDE & Editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
