@@ -54,7 +54,7 @@
 
       <!-- Desktop Nav Links -->
       <nav class="hidden md:flex items-center gap-1">
-        <a href="/" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Home</a>
+       
         
         {% if current_user %}
           {% if current_user.role.value == 'PATIENT' %}
@@ -67,8 +67,8 @@
             <a href="/doctor/profile" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Clinic Profile</a>
           {% elif current_user.role.value == 'ADMIN' %}
             <a href="/admin/dashboard" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Admin Dashboard</a>
-            <a href="/admin/doctors" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Doctors CRUD</a>
-            <a href="/admin/services" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Services CRUD</a>
+            <a href="/admin/doctors" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Doctors </a>
+            <a href="/admin/services" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Services </a>
             <a href="/admin/appointments" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Appointments</a>
             <a href="/admin/payments" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Payments</a>
             <a href="/admin/sms-logs" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">SMS Logs</a>
@@ -115,7 +115,7 @@
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-2 text-slate-700 font-medium">
         <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-        <span>CareSync PH © 2026 - Final Year Individual Project</span>
+        <span>CareSync PH © 2026 </span>
       </div>
       <div class="flex items-center gap-4 text-xs text-slate-400">
         <span>PayMongo API</span> • 

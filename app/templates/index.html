@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}CareSync PH - Modern Online Clinic & Doctor Booking System{% endblock %}
+{% block title %}CareSync PH - Online Clinic & Doctor Booking System{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -8,21 +8,22 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-12 gap-12 items-center">
       
+      <!-- Left Content -->
       <div class="lg:col-span-7 space-y-6">
         <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-xs font-semibold">
           <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
-          Next-Generation Clinic Management & Booking
+          Modern Healthcare & Outpatient Clinic Portal
         </div>
         
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
           Healthcare Booking, <br>
           <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">
-            Intelligently Connected.
+            Simplified & Connected.
           </span>
         </h1>
         
         <p class="text-lg text-slate-600 max-w-2xl leading-relaxed">
-          Book certified doctors, pay seamlessly via PayMongo (GCash & Maya), receive real-time Semaphore SMS alerts, sync with Google Calendar, and store medical files with Cloudinary.
+          Book appointments with certified specialists, pay securely via GCash or Maya, receive instant mobile SMS reminders, and access your clinical prescriptions from anywhere.
         </p>
 
         <!-- CTA Buttons -->
@@ -33,92 +34,62 @@
           </a>
           <a href="/login" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-base border border-slate-200 shadow-sm transition">
             <i data-lucide="log-in" class="w-5 h-5 text-slate-400"></i>
-            Access Portal
+            Sign In / Register
           </a>
         </div>
 
-        <!-- 1-Click Demo Accounts for Fast Evaluator Testing -->
-        <div class="pt-6 border-t border-slate-200">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Quick Demo Logins for Project Presentation:</p>
-          <div class="flex flex-wrap gap-2">
-            <a href="/auth/google/callback?mock_email=admin@caresync.ph&mock_name=Dr.+Admin+Officer&mock_role=ADMIN" 
-               class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition">
-              <i data-lucide="shield" class="w-3.5 h-3.5"></i> Admin Role
-            </a>
-            <a href="/auth/google/callback?mock_email=doctor.santos@caresync.ph&mock_name=Dr.+Maria+Santos&mock_role=DOCTOR" 
-               class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition">
-              <i data-lucide="stethoscope" class="w-3.5 h-3.5"></i> Doctor Role
-            </a>
-            <a href="/auth/google/callback?mock_email=patient.cruz@example.com&mock_name=Juan+Dela+Cruz&mock_role=PATIENT" 
-               class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">
-              <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Patient Role
-            </a>
+        <!-- Clinic Highlights -->
+        <div class="pt-6 border-t border-slate-200 grid grid-cols-3 gap-4 text-left">
+          <div>
+            <p class="text-2xl font-black text-slate-900">100%</p>
+            <p class="text-xs text-slate-500 font-medium">Verified Physicians</p>
+          </div>
+          <div>
+            <p class="text-2xl font-black text-slate-900">Instant</p>
+            <p class="text-xs text-slate-500 font-medium">SMS Confirmation</p>
+          </div>
+          <div>
+            <p class="text-2xl font-black text-slate-900">Flexible</p>
+            <p class="text-xs text-slate-500 font-medium">GCash & Maya</p>
           </div>
         </div>
       </div>
 
-      <!-- Right Feature Badge Card -->
+      <!-- Right Card: Available Specialists Showcase -->
       <div class="lg:col-span-5">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-100 relative">
-          <div class="absolute -top-4 -right-4 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-            5 APIs Active
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-100 space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="user-check" class="w-5 h-5 text-emerald-600"></i> On-Duty Specialists
+            </h3>
+            <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+              Accepting Patients
+            </span>
           </div>
 
-          <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <i data-lucide="cpu" class="w-5 h-5 text-emerald-600"></i> Integrated External APIs
-          </h3>
-
-          <div class="space-y-3.5">
-            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-emerald-50/40 transition">
-              <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <i data-lucide="credit-card" class="w-5 h-5"></i>
+          <div class="space-y-3">
+            {% for doc in doctors[:3] %}
+              <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-emerald-50/40 transition">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0">
+                    Dr
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-slate-900">Dr. {{ doc.user.full_name }}</h4>
+                    <p class="text-xs text-emerald-700 font-semibold">{{ doc.specialization }}</p>
+                    <p class="text-[11px] text-slate-400">{{ doc.clinic_room }}</p>
+                  </div>
+                </div>
+                <a href="/patient/book?doctor_id={{ doc.id }}" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-emerald-700 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 text-xs font-bold shadow-sm transition">
+                  Book
+                </a>
               </div>
-              <div>
-                <h4 class="text-sm font-bold text-slate-900">PayMongo Sandbox</h4>
-                <p class="text-xs text-slate-500">Instant consultation fee payments via GCash, Maya, and Credit Cards.</p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-emerald-50/40 transition">
-              <div class="w-9 h-9 rounded-lg bg-green-100 text-green-600 flex items-center justify-center shrink-0">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <h4 class="text-sm font-bold text-slate-900">Semaphore SMS API</h4>
-                <p class="text-xs text-slate-500">Instant SMS booking confirmation, payment receipts, and reminders.</p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-emerald-50/40 transition">
-              <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <i data-lucide="calendar" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <h4 class="text-sm font-bold text-slate-900">Google Calendar API</h4>
-                <p class="text-xs text-slate-500">1-click calendar sync with room number and consultation reminder.</p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-emerald-50/40 transition">
-              <div class="w-9 h-9 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                <i data-lucide="lock" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <h4 class="text-sm font-bold text-slate-900">Google OAuth 2.0</h4>
-                <p class="text-xs text-slate-500">Secure patient & doctor single sign-on with verified profiles.</p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-emerald-50/40 transition">
-              <div class="w-9 h-9 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
-                <i data-lucide="cloud-upload" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <h4 class="text-sm font-bold text-slate-900">Cloudinary API</h4>
-                <p class="text-xs text-slate-500">Cloud storage for lab results, doctor prescriptions, and valid IDs.</p>
-              </div>
-            </div>
+            {% endfor %}
           </div>
+
+          <a href="/patient/book" class="block text-center text-xs font-bold text-emerald-600 hover:text-emerald-700 pt-2">
+            View All Physicians & Clinic Services →
+          </a>
         </div>
       </div>
 
@@ -126,13 +97,13 @@
   </div>
 </section>
 
-<!-- System Features & Workflow Section -->
+<!-- How It Works Section -->
 <section class="py-16 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center max-w-3xl mx-auto mb-14">
-      <h2 class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">Seamless Experience</h2>
-      <h3 class="text-3xl font-extrabold text-slate-900">How CareSync PH Works</h3>
-      <p class="text-slate-500 mt-2">End-to-end digital clinic consultation flow in four simple steps.</p>
+      <h2 class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">Patient Journey</h2>
+      <h3 class="text-3xl font-extrabold text-slate-900">How CareSync Works</h3>
+      <p class="text-slate-500 mt-2">Book and attend your medical consultation in four simple steps.</p>
     </div>
 
     <div class="grid md:grid-cols-4 gap-8">
@@ -140,16 +111,16 @@
         <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-emerald-600/20">
           1
         </div>
-        <h4 class="font-bold text-slate-900 mb-2">Select Doctor & Time</h4>
-        <p class="text-xs text-slate-500 leading-relaxed">Choose from verified specialists, preview consultation fees, and select your preferred schedule.</p>
+        <h4 class="font-bold text-slate-900 mb-2">Choose Doctor & Time</h4>
+        <p class="text-xs text-slate-500 leading-relaxed">Select from verified medical specialists and choose a schedule that fits your day.</p>
       </div>
 
       <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
         <div class="w-12 h-12 mx-auto rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-blue-600/20">
           2
         </div>
-        <h4 class="font-bold text-slate-900 mb-2">Pay via PayMongo</h4>
-        <p class="text-xs text-slate-500 leading-relaxed">Complete reservation securely using GCash, Maya, or Card on PayMongo sandbox.</p>
+        <h4 class="font-bold text-slate-900 mb-2">Secure Online Payment</h4>
+        <p class="text-xs text-slate-500 leading-relaxed">Complete reservation securely using GCash, Maya, or Debit/Credit Cards.</p>
       </div>
 
       <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
@@ -157,15 +128,15 @@
           3
         </div>
         <h4 class="font-bold text-slate-900 mb-2">SMS & Calendar Sync</h4>
-        <p class="text-xs text-slate-500 leading-relaxed">Receive instant Semaphore SMS confirmation and add the event directly to your Google Calendar.</p>
+        <p class="text-xs text-slate-500 leading-relaxed">Receive instant mobile text confirmation and add the consultation directly to your personal calendar.</p>
       </div>
 
       <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center relative">
         <div class="w-12 h-12 mx-auto rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg mb-4 shadow-md shadow-indigo-600/20">
           4
         </div>
-        <h4 class="font-bold text-slate-900 mb-2">Upload Lab & Consult</h4>
-        <p class="text-xs text-slate-500 leading-relaxed">Upload prior lab tests via Cloudinary and receive doctor's diagnosis & digital prescription.</p>
+        <h4 class="font-bold text-slate-900 mb-2">Consult & Prescription</h4>
+        <p class="text-xs text-slate-500 leading-relaxed">Upload lab results and receive your doctor's clinical findings and digital prescriptions in your portal.</p>
       </div>
     </div>
   </div>
