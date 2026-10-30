@@ -73,25 +73,6 @@
       </button>
     </form>
 
-    <!-- Quick Demo Accounts Box -->
-    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-      <p class="text-xs font-bold text-slate-600 mb-2">Instant Demo Accounts (Click to Fill):</p>
-      <div class="grid grid-cols-3 gap-2">
-        <button type="button" onclick="fillForm('admin@caresync.ph', 'admin123')"
-                class="px-2 py-1.5 text-[11px] font-bold rounded-lg bg-indigo-100/70 text-indigo-700 hover:bg-indigo-200 transition">
-          Admin
-        </button>
-        <button type="button" onclick="fillForm('doctor.santos@caresync.ph', 'doctor123')"
-                class="px-2 py-1.5 text-[11px] font-bold rounded-lg bg-teal-100/70 text-teal-700 hover:bg-teal-200 transition">
-          Doctor
-        </button>
-        <button type="button" onclick="fillForm('patient.cruz@example.com', 'patient123')"
-                class="px-2 py-1.5 text-[11px] font-bold rounded-lg bg-emerald-100/70 text-emerald-700 hover:bg-emerald-200 transition">
-          Patient
-        </button>
-      </div>
-    </div>
-
     <div class="text-center text-xs text-slate-500">
       Don't have an account? 
       <a href="/register" class="font-semibold text-emerald-600 hover:underline">Register now</a>
@@ -99,11 +80,4 @@
 
   </div>
 </div>
-
-<script>
-  function fillForm(email, pwd) {
-    document.getElementById('email').value = email;
-    document.getElementById('password').value = pwd;
-  }
-</script>
 {% endblock %}
