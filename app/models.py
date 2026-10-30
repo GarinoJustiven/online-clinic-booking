@@ -45,6 +45,16 @@ class User(Base):
     appointments_as_patient = relationship("Appointment", back_populates="patient", foreign_keys="Appointment.patient_id")
     medical_records = relationship("MedicalRecord", back_populates="patient", cascade="all, delete-orphan")
 
+    @property
+    def display_avatar_url(self) -> str:
+        if not self.avatar_url:
+            return ""
+        url = self.avatar_url
+        for prefix in ("http://127.0.0.1:8000", "http://localhost:8000"):
+            if url.startswith(prefix):
+                return url[len(prefix):]
+        return url
+
 class DoctorProfile(Base):
     __tablename__ = "doctor_profiles"
 
@@ -146,6 +156,30 @@ class MedicalRecord(Base):
 
     patient = relationship("User", back_populates="medical_records")
     appointment = relationship("Appointment", back_populates="medical_records")
+
+    @property
+    def display_file_url(self) -> str:
+        if not self.file_url:
+            return ""
+        url = self.file_url
+        for prefix in ("http://127.0.0.1:8000", "http://localhost:8000"):
+            if url.startswith(prefix):
+                return url[len(prefix):]
+        return url
+
+    @property
+    def is_image(self) -> bool:
+        fmt = (self.file_format or "").lower()
+        if fmt in ("jpg", "jpeg", "png", "webp", "gif", "svg"):
+            return True
+        url = (self.file_url or "").lower()
+        return any(url.endswith(f".{ext}") for ext in ("jpg", "jpeg", "png", "webp", "gif", "svg"))
+
+    @property
+    def is_pdf(self) -> bool:
+        fmt = (self.file_format or "").lower()
+        url = (self.file_url or "").lower()
+        return fmt == "pdf" or url.endswith(".pdf")
 
 class SmsLog(Base):
     __tablename__ = "sms_logs"

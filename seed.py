@@ -233,12 +233,22 @@ def seed_database():
             appointment_id=appt1.id,
             title="Complete Blood Count (CBC) Lab Panel",
             document_type="Lab Result",
-            file_url="https://res.cloudinary.com/demo/image/upload/v1612345678/sample.jpg",
+            file_url="https://res.cloudinary.com/demo/image/upload/sample.jpg",
             cloudinary_public_id="sample_cbc_panel",
             file_format="jpg",
             notes="Normal white blood cell count and hemoglobin."
         )
-        db.add(rec1)
+        rec2 = MedicalRecord(
+            patient_id=patient1.id,
+            appointment_id=appt1.id,
+            title="Chest X-Ray Digital Scan",
+            document_type="Imaging / X-Ray",
+            file_url="https://res.cloudinary.com/demo/image/upload/sample.jpg",
+            cloudinary_public_id="sample_chest_xray",
+            file_format="jpg",
+            notes="Clear lung fields. No active cardiopulmonary disease."
+        )
+        db.add_all([rec1, rec2])
 
         # Sample Semaphore SMS Logs
         print("Seeding Semaphore SMS Logs...")

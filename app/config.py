@@ -42,8 +42,8 @@ class Settings:
     CLOUDINARY_API_KEY: str = os.getenv("CLOUDINARY_API_KEY", "").strip()
     CLOUDINARY_API_SECRET: str = os.getenv("CLOUDINARY_API_SECRET", "").strip()
 
-    # Uploads directory fallback
-    UPLOAD_DIR: Path = BASE_DIR / "static" / "uploads"
+    # Uploads directory fallback (located inside app/static/uploads)
+    UPLOAD_DIR: Path = Path(__file__).resolve().parent / "static" / "uploads"
 
     @property
     def is_paymongo_configured(self) -> bool:

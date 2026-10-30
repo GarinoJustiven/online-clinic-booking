@@ -44,7 +44,7 @@ class CloudinaryService:
             with open(save_path, "wb") as f:
                 f.write(contents)
 
-            local_url = f"{settings.APP_URL}/static/uploads/{safe_name}"
+            local_url = f"/static/uploads/{safe_name}"
             return {
                 "success": True,
                 "mode": "LOCAL_STORAGE_SANDBOX",
@@ -98,7 +98,7 @@ class CloudinaryService:
                     return {
                         "success": True,
                         "mode": "LOCAL_STORAGE_FALLBACK",
-                        "secure_url": f"{settings.APP_URL}/static/uploads/{safe_name}",
+                        "secure_url": f"/static/uploads/{safe_name}",
                         "public_id": f"local_{safe_name}",
                         "format": file_ext,
                         "bytes": len(contents),
@@ -113,7 +113,7 @@ class CloudinaryService:
             return {
                 "success": True,
                 "mode": "LOCAL_STORAGE_FALLBACK",
-                "secure_url": f"{settings.APP_URL}/static/uploads/{safe_name}",
+                "secure_url": f"/static/uploads/{safe_name}",
                 "public_id": f"local_{safe_name}",
                 "format": file_ext,
                 "bytes": len(contents),

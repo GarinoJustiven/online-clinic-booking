@@ -1,6 +1,7 @@
 from pathlib import Path
+from typing import Optional
 from datetime import date
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -12,6 +13,7 @@ from app.models import (
 )
 from app.auth import require_roles
 from app.services.semaphore_service import semaphore_service
+from app.services.cloudinary_service import cloudinary_service
 
 router = APIRouter(prefix="/doctor", tags=["Doctor Portal"])
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
@@ -181,6 +183,8 @@ async def doctor_profile_page(
 @router.post("/profile")
 async def doctor_profile_update(
     request: Request,
+    full_name: str = Form(...),
+    phone_number: str = Form(""),
     specialization: str = Form(...),
     license_number: str = Form(""),
     consultation_fee: float = Form(500.0),
@@ -189,7 +193,8 @@ async def doctor_profile_update(
     schedule_hours: str = Form("09:00 AM - 05:00 PM"),
     bio: str = Form(""),
     is_available: bool = Form(False),
-    current_user: User = Depends(require_roles(UserRole.DOCTOR)),
+    avatar_file: Optional[UploadFile] = File(None),
+    current_user: User = Depends(require_roles(UserRole.DOCTOR, UserRole.ADMIN)),
     db: Session = Depends(get_db)
 ):
     profile = db.query(DoctorProfile).filter(DoctorProfile.user_id == current_user.id).first()
@@ -197,6 +202,17 @@ async def doctor_profile_update(
         profile = DoctorProfile(user_id=current_user.id, specialization=specialization)
         db.add(profile)
 
+    # Handle Profile Picture Upload (Cloudinary)
+    if avatar_file and avatar_file.filename:
+        upload_res = await cloudinary_service.upload_file(file=avatar_file, folder="caresync_avatars")
+        if upload_res.get("secure_url"):
+            current_user.avatar_url = upload_res.get("secure_url")
+
+    # Update User Info
+    current_user.full_name = full_name.strip()
+    current_user.phone_number = phone_number.strip()
+
+    # Update Doctor Settings
     profile.specialization = specialization.strip()
     profile.license_number = license_number.strip()
     profile.consultation_fee = consultation_fee

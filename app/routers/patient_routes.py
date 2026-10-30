@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 import random
 import uuid
 from datetime import datetime, date
@@ -204,6 +205,17 @@ async def appointment_detail(
         .all()
     )
 
+    # Fetch attached medical records (Cloudinary)
+    records = (
+        db.query(MedicalRecord)
+        .filter(
+            (MedicalRecord.appointment_id == appointment.id) |
+            (MedicalRecord.patient_id == appointment.patient_id)
+        )
+        .order_by(MedicalRecord.uploaded_at.desc())
+        .all()
+    )
+
     return templates.TemplateResponse(
         request=request,
         name="patient/appointment_detail.html",
@@ -213,6 +225,7 @@ async def appointment_detail(
             "booked": booked,
             "paid": paid,
             "sms_logs": sms_logs,
+            "records": records,
             "settings": settings
         }
     )
@@ -376,3 +389,47 @@ async def cancel_appointment(
     )
 
     return RedirectResponse(url=f"/patient/appointments/{appointment_id}", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.get("/profile", response_class=HTMLResponse)
+async def patient_profile_page(
+    request: Request,
+    saved: bool = False,
+    current_user: User = Depends(require_roles(UserRole.PATIENT, UserRole.ADMIN)),
+    db: Session = Depends(get_db)
+):
+    total_appointments = db.query(Appointment).filter(Appointment.patient_id == current_user.id).count()
+    total_records = db.query(MedicalRecord).filter(MedicalRecord.patient_id == current_user.id).count()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="patient/profile.html",
+        context={
+            "current_user": current_user,
+            "saved": saved,
+            "total_appointments": total_appointments,
+            "total_records": total_records,
+            "settings": settings
+        }
+    )
+
+@router.post("/profile")
+async def patient_profile_update(
+    request: Request,
+    full_name: str = Form(...),
+    phone_number: str = Form(""),
+    avatar_file: Optional[UploadFile] = File(None),
+    current_user: User = Depends(require_roles(UserRole.PATIENT, UserRole.ADMIN)),
+    db: Session = Depends(get_db)
+):
+    # Handle Profile Picture Upload (Cloudinary)
+    if avatar_file and avatar_file.filename:
+        upload_res = await cloudinary_service.upload_file(file=avatar_file, folder="caresync_avatars")
+        if upload_res.get("secure_url"):
+            current_user.avatar_url = upload_res.get("secure_url")
+
+    # Update User Info
+    current_user.full_name = full_name.strip()
+    current_user.phone_number = phone_number.strip()
+
+    db.commit()
+    return RedirectResponse(url="/patient/profile?saved=true", status_code=status.HTTP_303_SEE_OTHER)

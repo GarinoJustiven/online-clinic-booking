@@ -61,6 +61,7 @@
             <a href="/patient/dashboard" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">My Appointments</a>
             <a href="/patient/book" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Book Consultation</a>
             <a href="/patient/records" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Medical Records</a>
+            <a href="/patient/profile" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">My Profile</a>
           {% elif current_user.role.value == 'DOCTOR' %}
             <a href="/doctor/dashboard" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Doctor Dashboard</a>
             <a href="/doctor/appointments" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">Appointments</a>
@@ -80,17 +81,20 @@
       <div class="flex items-center gap-3">
         {% if current_user %}
           <div class="flex items-center gap-2.5">
-            {% if current_user.avatar_url %}
-              <img src="{{ current_user.avatar_url }}" alt="avatar" class="w-8 h-8 rounded-full object-cover border border-slate-200">
-            {% else %}
-              <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center">
-                {{ current_user.full_name[:2].upper() }}
+            <a href="{% if current_user.role.value == 'PATIENT' %}/patient/profile{% elif current_user.role.value == 'DOCTOR' %}/doctor/profile{% else %}/admin/dashboard{% endif %}"
+               class="flex items-center gap-2.5 group hover:opacity-90 transition">
+              {% if current_user.display_avatar_url %}
+                <img src="{{ current_user.display_avatar_url }}" alt="avatar" class="w-8 h-8 rounded-full object-cover border border-slate-200 group-hover:ring-2 group-hover:ring-emerald-500 transition">
+              {% else %}
+                <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center group-hover:ring-2 group-hover:ring-emerald-500 transition">
+                  {{ current_user.full_name[:2].upper() }}
+                </div>
+              {% endif %}
+              <div class="hidden sm:block text-left">
+                <span class="block text-xs font-semibold text-slate-800 group-hover:text-emerald-600 transition leading-tight">{{ current_user.full_name }}</span>
+                <span class="inline-block text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 uppercase">{{ current_user.role.value }}</span>
               </div>
-            {% endif %}
-            <div class="hidden sm:block text-left">
-              <span class="block text-xs font-semibold text-slate-800 leading-tight">{{ current_user.full_name }}</span>
-              <span class="inline-block text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 uppercase">{{ current_user.role.value }}</span>
-            </div>
+            </a>
             <a href="/logout" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Logout">
               <i data-lucide="log-out" class="w-4 h-4"></i>
             </a>
