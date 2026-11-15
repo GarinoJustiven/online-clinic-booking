@@ -72,6 +72,19 @@ async def doctor_appointments_list(
     if not profile and current_user.role == UserRole.ADMIN:
         profile = db.query(DoctorProfile).first()
 
+    if not profile:
+        return templates.TemplateResponse(
+            request=request,
+            name="doctor/appointments.html",
+            context={
+                "current_user": current_user,
+                "profile": None,
+                "appointments": [],
+                "status_filter": status_filter,
+                "settings": settings
+            }
+        )
+
     query = db.query(Appointment).filter(Appointment.doctor_id == profile.id)
     if status_filter != "ALL":
         query = query.filter(Appointment.status == status_filter)
@@ -136,7 +149,10 @@ async def doctor_update_appointment(
         raise HTTPException(status_code=404, detail="Appointment not found")
 
     old_status = appointment.status
-    appointment.status = AppointmentStatus(status_val)
+    try:
+        appointment.status = AppointmentStatus(status_val.upper())
+    except (ValueError, KeyError):
+        appointment.status = AppointmentStatus(status_val)
     if doctor_diagnosis:
         appointment.doctor_diagnosis = doctor_diagnosis.strip()
     if doctor_prescription:
@@ -165,7 +181,7 @@ async def doctor_update_appointment(
 async def doctor_profile_page(
     request: Request,
     saved: bool = False,
-    current_user: User = Depends(require_roles(UserRole.DOCTOR)),
+    current_user: User = Depends(require_roles(UserRole.DOCTOR, UserRole.ADMIN)),
     db: Session = Depends(get_db)
 ):
     profile = db.query(DoctorProfile).filter(DoctorProfile.user_id == current_user.id).first()

@@ -1,12 +1,16 @@
 services:
   - type: web
     name: caresync-online-clinic
-    env: python
+    runtime: python
+    plan: free
+    region: oregon
     buildCommand: "pip install -r requirements.txt && python seed.py"
     startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/health
+    autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.0
+        value: 3.12.7
       - key: SECRET_KEY
         generateValue: true
       - key: ENVIRONMENT

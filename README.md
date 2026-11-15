@@ -166,15 +166,42 @@ Once running, navigate to:
 
 ## ☁️ 7. Free Cloud Deployment (Render / Railway)
 
-### Deploying to Render.com (Free Tier):
-1. Push your repository to GitHub or GitLab.
-2. Sign in to [Render](https://render.com) and click **New + > Web Service**.
-3. Select your repository.
-4. Render will automatically detect `render.yaml` or use the following settings:
-   - **Environment**: Python
-   - **Build Command**: `pip install -r requirements.txt`
+### Option A: 1-Click Render Blueprint Deployment (Recommended)
+1. Push your repository to your GitHub account.
+2. Sign in to your [Render Dashboard](https://dashboard.render.com).
+3. Click **New + > Blueprint**.
+4. Connect your `online-clinic-booking` repository.
+5. Render will automatically parse `render.yaml` with the following production-optimized configuration:
+   - **Runtime**: Python 3.12 (`runtime: python`)
+   - **Plan**: `free` (100% Free Tier compatible)
+   - **Build Command**: `pip install -r requirements.txt && python seed.py`
    - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Health Check Path**: `/api/health`
+   - **Auto-Deploy**: Enabled on git push
+   - **Domain Auto-Resolution**: The application automatically detects `RENDER_EXTERNAL_URL` so OAuth redirects, PayMongo simulator callbacks, and document URLs point directly to your live `.onrender.com` domain with zero manual configuration.
+6. Click **Apply** to deploy!
+
+### Option B: Manual Web Service Setup on Render
+If configuring manually without Blueprints:
+1. Click **New + > Web Service**.
+2. Select repository, name it `caresync-online-clinic`.
+3. Configure the service settings:
+   - **Runtime**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt && python seed.py`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Plan**: `Free`
+   - **Health Check Path**: `/api/health`
+4. Under **Environment Variables**, add:
+   - `PYTHON_VERSION`: `3.12.7`
+   - `SECRET_KEY`: `(generate random string or let Render generate)`
+   - `ENVIRONMENT`: `production`
+   - `DATABASE_URL`: `sqlite:///./clinic.db` *(or connect a Render PostgreSQL database)*
 5. Click **Deploy Web Service**!
+
+### Database Flexibility (SQLite / PostgreSQL)
+The application includes `psycopg2-binary` and SQLAlchemy 2.0 connection pre-ping. It automatically supports both:
+- **SQLite (Default)**: Runs immediately with zero database provisioning.
+- **Render PostgreSQL / Supabase**: Simply paste your `postgresql://...` connection string into `DATABASE_URL` and the app automatically initializes all tables and seed records on startup.
 
 ---
 

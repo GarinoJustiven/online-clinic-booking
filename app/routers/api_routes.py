@@ -1,5 +1,5 @@
 from typing import List, Optional
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
 from app.config import settings
@@ -24,7 +24,7 @@ router = APIRouter(prefix="/api", tags=["REST API"])
 async def health_check():
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "project": settings.PROJECT_NAME,
         "environment": settings.ENVIRONMENT
     }
@@ -86,7 +86,7 @@ async def create_appointment_api(
         if srv:
             consultation_fee = srv.base_price
 
-    appt_code = f"CS-{date.today().year}-{datetime.utcnow().microsecond % 10000:04d}"
+    appt_code = f"CS-{date.today().year}-{datetime.now(timezone.utc).microsecond % 10000:04d}"
     calendar_link = google_calendar_service.generate_calendar_link(
         appointment_code=appt_code,
         doctor_name=doctor.user.full_name,

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional
 import random
 import uuid
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -267,8 +267,19 @@ async def paymongo_simulator_confirm(
     if appointment.payment:
         appointment.payment.status = PaymentStatus.PAID
         appointment.payment.payment_method = payment_method
-        appointment.payment.paid_at = datetime.utcnow()
+        appointment.payment.paid_at = datetime.now(timezone.utc)
         appointment.payment.paymongo_payment_id = reference_number or f"pay_sim_{uuid.uuid4().hex[:10]}"
+    else:
+        payment = Payment(
+            appointment_id=appointment.id,
+            amount=appointment.consultation_fee,
+            currency="PHP",
+            status=PaymentStatus.PAID,
+            payment_method=payment_method,
+            paid_at=datetime.now(timezone.utc),
+            paymongo_payment_id=reference_number or f"pay_sim_{uuid.uuid4().hex[:10]}"
+        )
+        db.add(payment)
 
     db.commit()
 

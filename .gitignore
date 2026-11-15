@@ -20,6 +20,8 @@ __pycache__/
 # Uploads directory (keep directory, ignore uploaded files)
 static/uploads/*
 !static/uploads/.gitkeep
+app/static/uploads/*
+!app/static/uploads/.gitkeep
 
 # Operating system files
 Thumbs.db

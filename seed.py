@@ -1,5 +1,5 @@
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from app.database import engine, Base, SessionLocal
 from app.models import (
     User, UserRole, DoctorProfile, Service,
@@ -189,7 +189,7 @@ def seed_database():
             currency="PHP",
             status=PaymentStatus.PAID,
             payment_method="gcash",
-            paid_at=datetime.utcnow()
+            paid_at=datetime.now(timezone.utc)
         )
         db.add(pay1)
 

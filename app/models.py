@@ -1,11 +1,12 @@
 import enum
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from sqlalchemy import (
     Column, Integer, String, Float, Text, Boolean, 
     DateTime, Date, ForeignKey, Enum as SAEnum
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.config import settings
 
 class UserRole(str, enum.Enum):
     ADMIN = "ADMIN"
@@ -38,7 +39,7 @@ class User(Base):
     avatar_url = Column(String(500), nullable=True)
     google_id = Column(String(100), nullable=True)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Relationships
     doctor_profile = relationship("DoctorProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
@@ -50,7 +51,10 @@ class User(Base):
         if not self.avatar_url:
             return ""
         url = self.avatar_url
-        for prefix in ("http://127.0.0.1:8000", "http://localhost:8000"):
+        prefixes = ["http://127.0.0.1:8000", "http://localhost:8000"]
+        if getattr(settings, "APP_URL", None) and settings.APP_URL not in prefixes:
+            prefixes.insert(0, settings.APP_URL)
+        for prefix in prefixes:
             if url.startswith(prefix):
                 return url[len(prefix):]
         return url
@@ -107,8 +111,8 @@ class Appointment(Base):
     google_calendar_event_id = Column(String(255), nullable=True)
     google_calendar_link = Column(Text, nullable=True)
     
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     # Relationships
     patient = relationship("User", back_populates="appointments_as_patient", foreign_keys=[patient_id])
@@ -133,7 +137,7 @@ class Payment(Base):
     status = Column(SAEnum(PaymentStatus), default=PaymentStatus.PENDING, nullable=False)
     payment_method = Column(String(50), default="paymongo")
     paid_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     appointment = relationship("Appointment", back_populates="payment")
 
@@ -152,7 +156,7 @@ class MedicalRecord(Base):
     file_format = Column(String(50), nullable=True)
     
     notes = Column(Text, nullable=True)
-    uploaded_at = Column(DateTime, default=datetime.utcnow)
+    uploaded_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     patient = relationship("User", back_populates="medical_records")
     appointment = relationship("Appointment", back_populates="medical_records")
@@ -162,7 +166,10 @@ class MedicalRecord(Base):
         if not self.file_url:
             return ""
         url = self.file_url
-        for prefix in ("http://127.0.0.1:8000", "http://localhost:8000"):
+        prefixes = ["http://127.0.0.1:8000", "http://localhost:8000"]
+        if getattr(settings, "APP_URL", None) and settings.APP_URL not in prefixes:
+            prefixes.insert(0, settings.APP_URL)
+        for prefix in prefixes:
             if url.startswith(prefix):
                 return url[len(prefix):]
         return url
@@ -193,4 +200,4 @@ class SmsLog(Base):
     provider = Column(String(50), default="Semaphore")
     status = Column(String(50), default="SENT")
     message_id = Column(String(100), nullable=True)
-    sent_at = Column(DateTime, default=datetime.utcnow)
+    sent_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

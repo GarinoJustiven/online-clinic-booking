@@ -1,5 +1,5 @@
 from pathlib import Path
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -264,7 +264,17 @@ async def admin_update_appointment_status(
     if appointment.payment:
         appointment.payment.status = PaymentStatus(payment_status_val)
         if payment_status_val == "PAID" and not appointment.payment.paid_at:
-            appointment.payment.paid_at = datetime.utcnow()
+            appointment.payment.paid_at = datetime.now(timezone.utc)
+    elif payment_status_val == "PAID":
+        payment = Payment(
+            appointment_id=appointment.id,
+            amount=appointment.consultation_fee,
+            currency="PHP",
+            status=PaymentStatus.PAID,
+            payment_method="admin_manual",
+            paid_at=datetime.now(timezone.utc)
+        )
+        db.add(payment)
 
     db.commit()
 

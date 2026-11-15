@@ -16,7 +16,8 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
     # App URL (used for redirects and webhook callbacks)
-    APP_URL: str = os.getenv("APP_URL", "http://127.0.0.1:8000").rstrip("/")
+    # Automatically resolves Render external domain in production or falls back to APP_URL / localhost
+    APP_URL: str = (os.getenv("RENDER_EXTERNAL_URL") or os.getenv("APP_URL", "http://127.0.0.1:8000")).rstrip("/")
     
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'clinic.db'}")
