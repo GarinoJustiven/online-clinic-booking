@@ -4,7 +4,7 @@ import time
 import httpx
 import uvicorn
 from app.main import app
-from app.models import Appointment, SmsLog
+from app.models import Appointment, SmsLog, User
 from app.database import SessionLocal
 
 class ServerThread(threading.Thread):
@@ -81,6 +81,7 @@ class TestCareSyncSystem(unittest.TestCase):
             cookies=cookies
         )
         self.assertEqual(book_res.status_code, 303)
+        self.assertEqual(book_res.headers.get("location"), "/patient/dashboard?booked=true")
 
         recent_sms = self.db.query(SmsLog).order_by(SmsLog.sent_at.desc()).first()
         self.assertIsNotNone(recent_sms)
@@ -98,6 +99,58 @@ class TestCareSyncSystem(unittest.TestCase):
             }
         )
         self.assertEqual(res.status_code, 303)
+
+    def test_08_patient_only_registration(self):
+        test_email = "new.patient.test@example.com"
+        # Cleanup if existed
+        existing = self.db.query(User).filter(User.email == test_email).first()
+        if existing:
+            self.db.delete(existing)
+            self.db.commit()
+
+        res = self.client.post(
+            "/register",
+            data={
+                "full_name": "New Registered Patient",
+                "email": test_email,
+                "phone_number": "09171112233",
+                "password": "securepassword123",
+                "confirm_password": "securepassword123"
+            }
+        )
+        self.assertEqual(res.status_code, 303)
+        self.assertEqual(res.headers.get("location"), "/patient/dashboard")
+
+        # Verify created in DB strictly with PATIENT role
+        user = self.db.query(User).filter(User.email == test_email).first()
+        self.assertIsNotNone(user)
+        self.assertEqual(user.role.value, "PATIENT")
+
+    def test_09_medical_record_upload_security(self):
+        login_res = self.client.post("/login", data={"email": "patient.cruz@example.com", "password": "patient123"})
+        cookies = login_res.cookies
+
+        # Valid document upload (PDF)
+        files = {"file": ("test_report.pdf", b"%PDF-1.4 sample content", "application/pdf")}
+        res = self.client.post(
+            "/patient/records/upload",
+            data={"title": "Lab Blood Chemistry", "document_type": "Lab Result", "notes": "Test upload"},
+            files=files,
+            cookies=cookies
+        )
+        self.assertEqual(res.status_code, 303)
+        self.assertIn("uploaded=true", res.headers.get("location", ""))
+
+        # Invalid extension blocked (e.g. .exe)
+        invalid_files = {"file": ("malicious.exe", b"binary content", "application/x-msdownload")}
+        res_invalid = self.client.post(
+            "/patient/records/upload",
+            data={"title": "Malicious File", "document_type": "Lab Result"},
+            files=invalid_files,
+            cookies=cookies
+        )
+        self.assertEqual(res_invalid.status_code, 303)
+        self.assertIn("error=", res_invalid.headers.get("location", ""))
 
 if __name__ == "__main__":
     unittest.main()

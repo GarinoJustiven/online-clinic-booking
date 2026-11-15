@@ -103,9 +103,6 @@ async def register_submit(
     confirm_password: str = Form(...),
     full_name: str = Form(...),
     phone_number: str = Form(...),
-    role: str = Form("PATIENT"),
-    specialization: str = Form("General Medicine"),
-    consultation_fee: float = Form(500.0),
     db: Session = Depends(get_db)
 ):
     if password != confirm_password:
@@ -116,7 +113,8 @@ async def register_submit(
             status_code=400
         )
 
-    existing = db.query(User).filter(User.email == email.strip().lower()).first()
+    clean_email = email.strip().lower()
+    existing = db.query(User).filter(User.email == clean_email).first()
     if existing:
         return templates.TemplateResponse(
             request=request,
@@ -125,32 +123,21 @@ async def register_submit(
             status_code=400
         )
 
-    assigned_role = UserRole.DOCTOR if role.upper() == "DOCTOR" else UserRole.PATIENT
-
+    # Enforce strictly: only Patients can register through the public registration portal
     new_user = User(
-        email=email.strip().lower(),
+        email=clean_email,
         hashed_password=get_password_hash(password),
         full_name=full_name.strip(),
         phone_number=phone_number.strip(),
-        role=assigned_role
+        role=UserRole.PATIENT,
+        is_active=True
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    if assigned_role == UserRole.DOCTOR:
-        doc_profile = DoctorProfile(
-            user_id=new_user.id,
-            specialization=specialization.strip(),
-            consultation_fee=consultation_fee,
-            bio=f"Certified {specialization} practitioner at CareSync Clinic."
-        )
-        db.add(doc_profile)
-        db.commit()
-
-    token = create_access_token(data={"sub": new_user.email, "role": new_user.role.value, "id": new_user.id})
-    target = "/doctor/dashboard" if assigned_role == UserRole.DOCTOR else "/patient/dashboard"
-    res = RedirectResponse(url=target, status_code=status.HTTP_303_SEE_OTHER)
+    token = create_access_token(data={"sub": new_user.email, "role": UserRole.PATIENT.value, "id": new_user.id})
+    res = RedirectResponse(url="/patient/dashboard", status_code=status.HTTP_303_SEE_OTHER)
     res.set_cookie(key="access_token", value=f"Bearer {token}", httponly=True, max_age=86400, samesite="lax")
     return res
 

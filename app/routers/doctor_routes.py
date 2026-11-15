@@ -117,7 +117,7 @@ async def doctor_appointment_detail(
 
     patient_records = (
         db.query(MedicalRecord)
-        .filter(MedicalRecord.patient_id == appointment.patient_id)
+        .filter(MedicalRecord.appointment_id == appointment.id)
         .order_by(MedicalRecord.uploaded_at.desc())
         .all()
     )

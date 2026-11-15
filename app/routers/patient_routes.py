@@ -26,6 +26,7 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 @router.get("/dashboard", response_class=HTMLResponse)
 async def patient_dashboard(
     request: Request,
+    booked: bool = False,
     current_user: User = Depends(require_roles(UserRole.PATIENT, UserRole.ADMIN)),
     db: Session = Depends(get_db)
 ):
@@ -56,6 +57,7 @@ async def patient_dashboard(
             "total_booked": total_booked,
             "total_completed": total_completed,
             "total_paid": total_paid,
+            "booked": booked,
             "settings": settings
         }
     )
@@ -174,7 +176,7 @@ async def book_appointment_submit(
     )
 
     return RedirectResponse(
-        url=f"/patient/appointments/{appointment.id}?booked=true",
+        url="/patient/dashboard?booked=true",
         status_code=status.HTTP_303_SEE_OTHER
     )
 
@@ -205,13 +207,10 @@ async def appointment_detail(
         .all()
     )
 
-    # Fetch attached medical records (Cloudinary)
+    # Fetch attached medical records (Cloudinary) specifically for this appointment
     records = (
         db.query(MedicalRecord)
-        .filter(
-            (MedicalRecord.appointment_id == appointment.id) |
-            (MedicalRecord.patient_id == appointment.patient_id)
-        )
+        .filter(MedicalRecord.appointment_id == appointment.id)
         .order_by(MedicalRecord.uploaded_at.desc())
         .all()
     )
@@ -303,6 +302,9 @@ async def paymongo_simulator_confirm(
 @router.get("/records", response_class=HTMLResponse)
 async def medical_records_page(
     request: Request,
+    uploaded: bool = False,
+    deleted: bool = False,
+    error: str = None,
     current_user: User = Depends(require_roles(UserRole.PATIENT, UserRole.ADMIN)),
     db: Session = Depends(get_db)
 ):
@@ -325,6 +327,9 @@ async def medical_records_page(
             "current_user": current_user,
             "records": records,
             "appointments": appointments,
+            "uploaded": uploaded,
+            "deleted": deleted,
+            "error": error,
             "settings": settings
         }
     )
@@ -340,15 +345,31 @@ async def upload_medical_record(
     current_user: User = Depends(require_roles(UserRole.PATIENT, UserRole.ADMIN)),
     db: Session = Depends(get_db)
 ):
-    # API 5: Cloudinary Upload
-    upload_res = await cloudinary_service.upload_file(file=file, folder="caresync_medical_records")
-    
-    parsed_appt_id = int(appointment_id) if appointment_id and appointment_id.isdigit() else None
+    clean_title = title.strip()
+    if not clean_title:
+        return RedirectResponse(url="/patient/records?error=Document+title+is+required", status_code=303)
+
+    # Validate that the appointment belongs to the current patient
+    parsed_appt_id = None
+    if appointment_id and appointment_id.isdigit():
+        appt = db.query(Appointment).filter(Appointment.id == int(appointment_id)).first()
+        if appt:
+            if current_user.role != UserRole.ADMIN and appt.patient_id != current_user.id:
+                raise HTTPException(status_code=403, detail="Unauthorized: Cannot attach record to another patient's appointment.")
+            parsed_appt_id = appt.id
+
+    try:
+        # Secure Cloudinary / Local upload with extension, MIME, and size validation
+        upload_res = await cloudinary_service.upload_file(file=file, folder="caresync_medical_records")
+    except HTTPException as he:
+        return RedirectResponse(url=f"/patient/records?error={he.detail.replace(' ', '+')}", status_code=303)
+    except Exception as e:
+        return RedirectResponse(url="/patient/records?error=Upload+failed.+Please+check+file+format+and+size.", status_code=303)
 
     record = MedicalRecord(
         patient_id=current_user.id,
         appointment_id=parsed_appt_id,
-        title=title.strip(),
+        title=clean_title,
         document_type=document_type,
         file_url=upload_res.get("secure_url"),
         cloudinary_public_id=upload_res.get("public_id"),

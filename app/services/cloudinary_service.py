@@ -3,13 +3,23 @@ import time
 import hashlib
 import logging
 import uuid
+import re
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Set
 import httpx
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException, status
 from app.config import settings
 
 logger = logging.getLogger("caresync.cloudinary")
+
+ALLOWED_EXTENSIONS: Set[str] = {"pdf", "jpg", "jpeg", "png", "webp"}
+ALLOWED_MIME_TYPES: Set[str] = {
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+}
+MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB max per document
 
 class CloudinaryService:
     def __init__(self):
@@ -30,16 +40,46 @@ class CloudinaryService:
         folder: str = "caresync_medical_records"
     ) -> Dict[str, Any]:
         """
-        Uploads a file (PDF, JPG, PNG, etc.) to Cloudinary or falls back to local storage.
+        Securely uploads a single medical document (PDF, JPG, PNG, WebP) to Cloudinary
+        or falls back to secure local storage. Validates extension, MIME type, and size.
         """
+        filename = Path(file.filename or "document").name
+        clean_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', filename)
+        file_ext = Path(clean_name).suffix.lstrip(".").lower()
+
+        # Security check 1: Whitelist file extensions
+        if not file_ext or file_ext not in ALLOWED_EXTENSIONS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Security Notice: File extension '.{file_ext}' is not permitted. Only PDF, JPG, PNG, and WebP medical records are allowed."
+            )
+
+        # Security check 2: Validate MIME content-type
+        content_type = (file.content_type or "").lower().split(";")[0].strip()
+        if content_type and content_type not in ALLOWED_MIME_TYPES and content_type != "application/octet-stream":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Security Notice: Content type '{content_type}' is not recognized as a safe medical document."
+            )
+
         contents = await file.read()
-        filename = file.filename or "uploaded_document"
-        file_ext = Path(filename).suffix.lstrip(".").lower() or "bin"
+
+        # Security check 3: Enforce maximum document size (10MB)
+        if len(contents) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="File size exceeds the 10MB limit for secure medical documents."
+            )
+        if len(contents) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Uploaded document is empty."
+            )
 
         if not self.is_configured:
             # Fallback to local uploads storage with full URL serving
-            logger.info(f"Cloudinary running in local storage fallback mode for: {filename}")
-            safe_name = f"{uuid.uuid4().hex[:12]}_{filename.replace(' ', '_')}"
+            logger.info(f"Cloudinary running in local storage fallback mode for: {clean_name}")
+            safe_name = f"{uuid.uuid4().hex[:12]}_{clean_name}"
             save_path = settings.UPLOAD_DIR / safe_name
             with open(save_path, "wb") as f:
                 f.write(contents)
@@ -52,7 +92,7 @@ class CloudinaryService:
                 "public_id": f"local_{safe_name}",
                 "format": file_ext,
                 "bytes": len(contents),
-                "original_filename": filename
+                "original_filename": clean_name
             }
 
         # Cloudinary live upload
@@ -91,7 +131,7 @@ class CloudinaryService:
                 else:
                     logger.error(f"Cloudinary API Error ({response.status_code}): {response.text}")
                     # Local fallback on error
-                    safe_name = f"{uuid.uuid4().hex[:12]}_{filename.replace(' ', '_')}"
+                    safe_name = f"{uuid.uuid4().hex[:12]}_{clean_name}"
                     save_path = settings.UPLOAD_DIR / safe_name
                     with open(save_path, "wb") as f:
                         f.write(contents)
@@ -106,7 +146,7 @@ class CloudinaryService:
                     }
         except Exception as e:
             logger.exception(f"Cloudinary upload failed: {e}")
-            safe_name = f"{uuid.uuid4().hex[:12]}_{filename.replace(' ', '_')}"
+            safe_name = f"{uuid.uuid4().hex[:12]}_{clean_name}"
             save_path = settings.UPLOAD_DIR / safe_name
             with open(save_path, "wb") as f:
                 f.write(contents)

@@ -20,6 +20,27 @@
     </button>
   </div>
 
+  {% if uploaded %}
+    <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-3 shadow-sm">
+      <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+      <span><strong>Document Uploaded!</strong> Your medical file has been securely verified and stored in cloud storage.</span>
+    </div>
+  {% endif %}
+
+  {% if deleted %}
+    <div class="p-4 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 text-sm flex items-center gap-3 shadow-sm">
+      <i data-lucide="info" class="w-5 h-5 text-slate-500 shrink-0"></i>
+      <span>Medical document was deleted successfully.</span>
+    </div>
+  {% endif %}
+
+  {% if error %}
+    <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-3 shadow-sm">
+      <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
+      <span><strong>Security Notice:</strong> {{ error }}</span>
+    </div>
+  {% endif %}
+
   <!-- Records Grid -->
   {% if records %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -196,44 +217,88 @@
 
 <script>
   function openPreview(url, title, type) {
-    document.getElementById('previewTitle').innerText = title || 'Medical Record';
-    document.getElementById('previewDownloadBtn').href = url;
+    const modal = document.getElementById('docPreviewModal');
+    const titleEl = document.getElementById('previewTitle');
+    const downloadBtn = document.getElementById('previewDownloadBtn');
     const container = document.getElementById('previewContent');
-    container.innerHTML = '';
+
+    // Securely set title (prevent XSS) and link
+    titleEl.textContent = title || 'Medical Record';
+    downloadBtn.href = url;
+
+    // Enforce strictly one item appears at a time by clearing all previous child nodes completely
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
 
     if (type === 'image') {
       const img = document.createElement('img');
       img.src = url;
-      img.alt = title;
+      img.alt = title || 'Medical Document';
       img.className = 'max-w-full max-h-[70vh] rounded-2xl shadow-md object-contain border border-slate-200 bg-white';
+      img.loading = 'lazy';
       container.appendChild(img);
     } else if (type === 'pdf') {
       const iframe = document.createElement('iframe');
       iframe.src = url;
+      iframe.title = title || 'Medical Document PDF';
       iframe.className = 'w-full h-[70vh] rounded-2xl border border-slate-200 bg-white shadow-sm';
+      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
+      iframe.setAttribute('referrerpolicy', 'no-referrer');
       container.appendChild(iframe);
     } else {
-      container.innerHTML = `
-        <div class="text-center p-8 bg-white rounded-2xl border border-slate-200 max-w-sm">
-          <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3">
-            <i data-lucide="file-check" class="w-8 h-8"></i>
-          </div>
-          <h4 class="font-bold text-slate-900 text-sm mb-1">${title}</h4>
-          <p class="text-xs text-slate-500 mb-4">Click below to view or download this document.</p>
-          <a href="${url}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition">
-            Open Document
-          </a>
-        </div>
-      `;
+      const card = document.createElement('div');
+      card.className = 'text-center p-8 bg-white rounded-2xl border border-slate-200 max-w-sm shadow-sm';
+
+      const iconWrap = document.createElement('div');
+      iconWrap.className = 'w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3';
+      iconWrap.innerHTML = '<i data-lucide="file-check" class="w-8 h-8"></i>';
+
+      const h4 = document.createElement('h4');
+      h4.className = 'font-bold text-slate-900 text-sm mb-1 truncate';
+      h4.textContent = title || 'Medical Document';
+
+      const desc = document.createElement('p');
+      desc.className = 'text-xs text-slate-500 mb-4';
+      desc.textContent = 'Click below to securely open or download this file.';
+
+      const btn = document.createElement('a');
+      btn.href = url;
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition';
+      btn.textContent = 'Open Document';
+
+      card.appendChild(iconWrap);
+      card.appendChild(h4);
+      card.appendChild(desc);
+      card.appendChild(btn);
+      container.appendChild(card);
     }
 
-    document.getElementById('docPreviewModal').classList.remove('hidden');
+    modal.classList.remove('hidden');
     if (window.lucide) lucide.createIcons();
   }
 
   function closePreview() {
-    document.getElementById('docPreviewModal').classList.add('hidden');
-    document.getElementById('previewContent').innerHTML = '';
+    const modal = document.getElementById('docPreviewModal');
+    const container = document.getElementById('previewContent');
+    modal.classList.add('hidden');
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+  }
+
+  // Close preview modal on Escape key press or clicking outside modal content
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePreview();
+  });
+
+  const previewModalEl = document.getElementById('docPreviewModal');
+  if (previewModalEl) {
+    previewModalEl.addEventListener('click', function(e) {
+      if (e.target === previewModalEl) closePreview();
+    });
   }
 </script>
 {% endblock %}

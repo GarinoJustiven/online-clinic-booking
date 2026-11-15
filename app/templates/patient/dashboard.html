@@ -5,6 +5,25 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
   
+  {% if booked %}
+    <div class="p-4 sm:p-5 rounded-3xl bg-emerald-50 border border-emerald-200 text-emerald-900 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-600/20">
+          <i data-lucide="check-circle" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">Appointment Booked Successfully!</h3>
+          <p class="text-xs text-slate-600 mt-0.5">Your consultation is scheduled and a confirmation SMS notification was dispatched.</p>
+        </div>
+      </div>
+      {% if appointments %}
+        <a href="/patient/appointments/{{ appointments[0].id }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-emerald-300 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition shadow-sm shrink-0">
+          <i data-lucide="eye" class="w-3.5 h-3.5"></i> View Booking Details
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+
   <!-- Welcome Banner -->
   <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg shadow-emerald-600/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
     <div>
