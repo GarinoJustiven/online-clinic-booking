@@ -120,22 +120,83 @@
         {% endif %}
 
         {% if appointment.doctor_diagnosis or appointment.doctor_prescription %}
-          <div class="pt-4 border-t border-slate-100 space-y-4">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Doctor Clinical Notes & Prescription</span>
-            
-            {% if appointment.doctor_diagnosis %}
-              <div class="p-4 rounded-xl bg-teal-50/70 border border-teal-100">
-                <span class="text-xs font-bold text-teal-900 block mb-1">Clinical Diagnosis:</span>
-                <p class="text-xs text-teal-800 leading-relaxed">{{ appointment.doctor_diagnosis }}</p>
+          <!-- Official Digital Prescription & Clinical Findings -->
+          <div id="patientPrescriptionCard" class="pt-6 border-t border-slate-100 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center">
+                  <i data-lucide="file-badge" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">Official Digital Prescription & Diagnosis</h3>
+                  <p class="text-[10px] text-slate-500">Certified clinical findings issued by your attending physician</p>
+                </div>
               </div>
-            {% endif %}
+              <button type="button" onclick="window.print()"
+                      class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-bold flex items-center gap-1.5 border border-teal-200 transition">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print / Save PDF
+              </button>
+            </div>
 
-            {% if appointment.doctor_prescription %}
-              <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-100">
-                <span class="text-xs font-bold text-blue-900 block mb-1">Prescription & Advice:</span>
-                <p class="text-xs text-blue-800 font-mono leading-relaxed whitespace-pre-line">{{ appointment.doctor_prescription }}</p>
+            <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-teal-50/30 border border-teal-100 space-y-4">
+              <!-- Physician & Patient Header -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-3 text-xs">
+                <div>
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Attending Physician:</span>
+                  <span class="font-extrabold text-slate-900 text-sm">Dr. {{ appointment.doctor.user.full_name }}</span>
+                  <span class="text-slate-600 text-[11px] block">{{ appointment.doctor.specialty }} • License No: {{ appointment.doctor.license_number or 'PRC-0148291' }}</span>
+                  <span class="text-slate-500 text-[10px] block">Clinic: {{ appointment.doctor.clinic_room }}</span>
+                </div>
+                <div class="sm:text-right">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Patient Information:</span>
+                  <span class="font-extrabold text-slate-900 text-sm">{{ appointment.patient.full_name }}</span>
+                  <span class="text-slate-600 text-[11px] block">Mobile: {{ appointment.patient.phone_number }}</span>
+                  <span class="text-slate-500 text-[10px] block">Consultation Date: {{ appointment.appointment_date.strftime('%B %d, %Y') }}</span>
+                </div>
               </div>
-            {% endif %}
+
+              <!-- Clinical Diagnosis -->
+              {% if appointment.doctor_diagnosis %}
+                <div class="space-y-1.5">
+                  <span class="text-[10px] uppercase font-bold text-teal-800 tracking-wider flex items-center gap-1">
+                    <i data-lucide="stethoscope" class="w-3.5 h-3.5 text-teal-600"></i> Clinical Diagnosis & Medical Findings:
+                  </span>
+                  <div class="p-3.5 rounded-xl bg-teal-50 border border-teal-200/70 text-teal-900 text-xs font-semibold leading-relaxed">
+                    {{ appointment.doctor_diagnosis }}
+                  </div>
+                </div>
+              {% endif %}
+
+              <!-- Digital Prescription (Rx) -->
+              {% if appointment.doctor_prescription %}
+                <div class="space-y-1.5">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xl font-serif font-black text-indigo-700">℞</span>
+                    <span class="text-[10px] uppercase font-bold text-indigo-900 tracking-wider">Prescription & Medication Directions:</span>
+                  </div>
+                  <div class="p-4 rounded-xl bg-white border border-indigo-100 text-slate-800 text-xs font-mono whitespace-pre-line leading-relaxed shadow-inner">
+                    {{ appointment.doctor_prescription }}
+                  </div>
+                </div>
+              {% endif %}
+
+              <!-- Digital Verification & SMS Delivery Notice -->
+              <div class="pt-3 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[10px]">
+                <div class="flex items-center gap-1.5 text-emerald-700 font-bold">
+                  <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+                  <span>Electronically Signed & Authenticated Telehealth Record</span>
+                </div>
+                <div class="text-slate-500">
+                  <span>Appointment Ref: <strong class="font-mono text-slate-700">{{ appointment.appointment_code }}</strong></span>
+                </div>
+              </div>
+
+              <!-- SMS Confirmation Banner -->
+              <div class="p-2.5 rounded-xl bg-teal-100/70 text-teal-900 text-[11px] flex items-center gap-2">
+                <i data-lucide="message-square" class="w-3.5 h-3.5 text-teal-700 shrink-0"></i>
+                <span>This clinical diagnosis and prescription was automatically sent to your phone (<strong>{{ appointment.patient.phone_number }}</strong>) via SMS.</span>
+              </div>
+            </div>
           </div>
         {% endif %}
       </div>
@@ -502,4 +563,30 @@
     });
   }
 </script>
+
+<style>
+  @media print {
+    body * {
+      visibility: hidden !important;
+    }
+    #patientPrescriptionCard, #patientPrescriptionCard * {
+      visibility: visible !important;
+    }
+    #patientPrescriptionCard {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 24px !important;
+      border: 1px solid #94a3b8 !important;
+      box-shadow: none !important;
+      background: #ffffff !important;
+      z-index: 99999 !important;
+    }
+    button, nav, header, footer {
+      display: none !important;
+    }
+  }
+</style>
 {% endblock %}

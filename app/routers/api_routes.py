@@ -178,9 +178,19 @@ async def update_appointment_status_api(
     db.refresh(appointment)
 
     # API 2: Semaphore SMS
+    doctor_name = appointment.doctor.user.full_name if (appointment.doctor and appointment.doctor.user) else "Physician"
+    diag_summary = f" Diagnosis: {appointment.doctor_diagnosis}." if appointment.doctor_diagnosis else ""
+    rx_summary = f" Rx: {appointment.doctor_prescription}." if appointment.doctor_prescription else ""
+
+    sms_text = (
+        f"CareSync Medical Update from Dr. {doctor_name} [Appt #{appointment.appointment_code} - {appointment.status.value}]:"
+        f"{diag_summary}{rx_summary} "
+        f"View digital prescription: {settings.APP_URL}/patient/appointments/{appointment.id}"
+    ).strip()
+
     await semaphore_service.send_sms(
         recipient_phone=appointment.patient.phone_number or "09171234567",
-        message=f"CareSync Appt {appointment.appointment_code} status updated to {data.status.value}.",
+        message=sms_text,
         recipient_name=appointment.patient.full_name,
         db=db
     )

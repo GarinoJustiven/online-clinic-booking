@@ -152,5 +152,57 @@ class TestCareSyncSystem(unittest.TestCase):
         self.assertEqual(res_invalid.status_code, 303)
         self.assertIn("error=", res_invalid.headers.get("location", ""))
 
+    def test_10_doctor_diagnosis_prescription_sms(self):
+        # 1. Login as doctor (doctor.santos@caresync.ph)
+        doc_login = self.client.post("/login", data={"email": "doctor.santos@caresync.ph", "password": "doctor123"})
+        self.assertEqual(doc_login.status_code, 303)
+        doc_cookies = doc_login.cookies
+
+        # 2. Get an appointment for this doctor
+        appt = self.db.query(Appointment).first()
+        self.assertIsNotNone(appt)
+
+        test_diagnosis = "Acute Upper Respiratory Tract Infection (URTI) with mild pharyngitis"
+        test_prescription = "1. Paracetamol 500mg - 1 tab every 6h PRN\n2. Cetirizine 10mg - 1 tab OD at bedtime"
+
+        # 3. Post consultation update
+        update_res = self.client.post(
+            f"/doctor/appointments/{appt.id}/update",
+            data={
+                "status_val": "COMPLETED",
+                "doctor_diagnosis": test_diagnosis,
+                "doctor_prescription": test_prescription
+            },
+            cookies=doc_cookies
+        )
+        self.assertEqual(update_res.status_code, 303)
+        self.assertIn("updated=true", update_res.headers.get("location", ""))
+
+        # 4. Refresh appointment from DB
+        self.db.refresh(appt)
+        self.assertEqual(appt.status.value, "COMPLETED")
+        self.assertEqual(appt.doctor_diagnosis, test_diagnosis)
+        self.assertEqual(appt.doctor_prescription, test_prescription)
+
+        # 5. Verify SMS was logged containing the doctor's diagnosis
+        sms_log = (
+            self.db.query(SmsLog)
+            .filter(SmsLog.message.contains(appt.appointment_code))
+            .order_by(SmsLog.sent_at.desc())
+            .first()
+        )
+        self.assertIsNotNone(sms_log)
+        self.assertIn("Diagnosis: " + test_diagnosis, sms_log.message)
+        self.assertIn(appt.appointment_code, sms_log.message)
+        self.assertIn(appt.doctor.user.full_name, sms_log.message)
+
+        # 6. Verify patient view displays diagnosis and prescription
+        patient_login = self.client.post("/login", data={"email": "patient.cruz@example.com", "password": "patient123"})
+        patient_cookies = patient_login.cookies
+        patient_view_res = self.client.get(f"/patient/appointments/{appt.id}", cookies=patient_cookies)
+        self.assertEqual(patient_view_res.status_code, 200)
+        self.assertIn(test_diagnosis, patient_view_res.text)
+        self.assertIn("Official Digital Prescription", patient_view_res.text)
+
 if __name__ == "__main__":
     unittest.main()

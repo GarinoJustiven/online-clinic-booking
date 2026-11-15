@@ -115,10 +115,20 @@ async def doctor_appointment_detail(
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
 
+    if current_user.role == UserRole.DOCTOR and appointment.doctor.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
     patient_records = (
         db.query(MedicalRecord)
         .filter(MedicalRecord.appointment_id == appointment.id)
         .order_by(MedicalRecord.uploaded_at.desc())
+        .all()
+    )
+
+    sms_logs = (
+        db.query(SmsLog)
+        .filter(SmsLog.message.contains(appointment.appointment_code))
+        .order_by(SmsLog.sent_at.desc())
         .all()
     )
 
@@ -129,6 +139,7 @@ async def doctor_appointment_detail(
             "current_user": current_user,
             "appointment": appointment,
             "patient_records": patient_records,
+            "sms_logs": sms_logs,
             "updated": updated,
             "settings": settings
         }
@@ -148,25 +159,36 @@ async def doctor_update_appointment(
     if not appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
 
-    old_status = appointment.status
+    if current_user.role == UserRole.DOCTOR and appointment.doctor.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
     try:
         appointment.status = AppointmentStatus(status_val.upper())
     except (ValueError, KeyError):
         appointment.status = AppointmentStatus(status_val)
-    if doctor_diagnosis:
+
+    if doctor_diagnosis is not None:
         appointment.doctor_diagnosis = doctor_diagnosis.strip()
-    if doctor_prescription:
+    if doctor_prescription is not None:
         appointment.doctor_prescription = doctor_prescription.strip()
 
     db.commit()
 
     # Semaphore SMS Notification (API 2)
+    # The physician's diagnosis and prescription update are dispatched to the patient via SMS
+    doctor_name = appointment.doctor.user.full_name if (appointment.doctor and appointment.doctor.user) else "Physician"
+    diag_summary = f" Diagnosis: {appointment.doctor_diagnosis}." if appointment.doctor_diagnosis else ""
+    rx_summary = f" Rx: {appointment.doctor_prescription}." if appointment.doctor_prescription else ""
+
     sms_text = (
-        f"CareSync Update: Dr. {appointment.doctor.user.full_name} has updated appointment {appointment.appointment_code}. "
-        f"Status: {appointment.status.value}. Please log in to view prescription/diagnosis."
-    )
+        f"CareSync Medical Update from Dr. {doctor_name} [Appt #{appointment.appointment_code} - {appointment.status.value}]:"
+        f"{diag_summary}{rx_summary} "
+        f"View digital prescription: {settings.APP_URL}/patient/appointments/{appointment.id}"
+    ).strip()
+
+    recipient_phone = appointment.patient.phone_number or "09171234567"
     await semaphore_service.send_sms(
-        recipient_phone=appointment.patient.phone_number or "09171234567",
+        recipient_phone=recipient_phone,
         message=sms_text,
         recipient_name=appointment.patient.full_name,
         db=db
